@@ -121,24 +121,27 @@ double turn = xBoxController1.getRawAxis(4); //eixo 4 = R3 pros lado
 //definicao do botao do motor de escalada
 //boolean climbUp = xBoxController2.getRawButton(2); //botao 2 = botao B
 //boolean climbDown = xBoxController2.getRawButton(3); // botao 3 = botao X
+boolean climbUp = xBoxController2.getRawButton(6); // botao 6 = RB
+boolean climbDown = xBoxController2.getRawButton(5); // botao 5 = LB
 
-boolean girobola = xBoxController1.getRawButton(6); // botao 6 = RB
+
+//boolean girobola = xBoxController2.getRawButton(6); // botao 6 = RB
 
 //definicao dos botoes do braço
-boolean armUp = xBoxController1.getRawButton(4); //botao 4 = Y
-boolean armDown = xBoxController1.getRawButton(1); // botao 1 = A
+boolean armUp = xBoxController2.getRawButton(4); //botao 4 = Y
+boolean armDown = xBoxController2.getRawButton(1); // botao 1 = A
 
 //definicao dos botoes do giro do braço
-boolean directionFront = xBoxController1.getRawButton(2); //botao 2 = B
-boolean directionBack = xBoxController1.getRawButton(3); // botao 3 = X
+boolean directionFront = xBoxController2.getRawButton(2); //botao 2 = B
+boolean directionBack = xBoxController2.getRawButton(3); // botao 3 = X
 
 //se um botao estiver pressionado, o motor de escalada sobe ou desce
-//if (climbUp) {
-//   escaladaCorda.set(1); //100% da potencia
-// } else if (climbDown) {
-//  escaladaCorda.set(-1); //100% da potencia
+if (climbUp) {
+   escaladaCorda.set(1); //100% da potencia
+ } else if (climbDown) {
+  escaladaCorda.set(-1); //100% da potencia
   
-// } else {
+ } else {
 //  escaladaCorda.set(0);
  //}
 
