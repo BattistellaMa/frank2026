@@ -1,15 +1,15 @@
 package frc.robot;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType; 
-import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.TimedRobot;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.TimedRobot;
 //import edu.wpi.first.wpilibj.XboxController;
 //import edu.wpi.first.wpilibj.PS4Controller.Axis;
 import edu.wpi.first.wpilibj.Timer;
@@ -29,9 +29,11 @@ public class Robot_2026 extends TimedRobot {
   SparkMax frontRight = new SparkMax(4, MotorType.kBrushed);
   SparkMax backLeft = new SparkMax(3, MotorType.kBrushed);
   SparkMax backRight = new SparkMax(5, MotorType.kBrushed);
-  SparkMax escaladaCorda = new SparkMax(6, MotorType.kBrushless);
+  SparkMax escaladaCorda = new SparkMax(6, MotorType.kBrushed);
   WPI_TalonSRX braco = new WPI_TalonSRX(7); 
-  WPI_TalonSRX giroBraco = new WPI_TalonSRX(8); 
+  WPI_TalonSRX giroBraco = new WPI_TalonSRX(8); //brushless
+  WPI_TalonSRX braco2 = new WPI_TalonSRX(9);
+  WPI_TalonSRX lancador = new WPI_TalonSRX(10); 
 
   DifferentialDrive drive;
 
@@ -42,7 +44,7 @@ public class Robot_2026 extends TimedRobot {
   //Criar variavel para guardar o tempo
   double startTime;
 
-  public Robot() {
+  public Robot_2026() {
     SparkMaxConfig escaladaConfig = new SparkMaxConfig();
     escaladaConfig.inverted(false);
     escaladaCorda.configure(escaladaConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
@@ -121,51 +123,70 @@ double turn = xBoxController1.getRawAxis(4); //eixo 4 = R3 pros lado
 //definicao do botao do motor de escalada
 //boolean climbUp = xBoxController2.getRawButton(2); //botao 2 = botao B
 //boolean climbDown = xBoxController2.getRawButton(3); // botao 3 = botao X
-boolean climbUp = xBoxController2.getRawButton(6); // botao 6 = RB
-boolean climbDown = xBoxController2.getRawButton(5); // botao 5 = LB
+boolean climbUp = xBoxController1.getRawButton(6); // botao 6 = RB
+boolean climbDown = xBoxController1.getRawButton(5); // botao 5 = LB
 
 
 //boolean girobola = xBoxController2.getRawButton(6); // botao 6 = RB
 
 //definicao dos botoes do braço
-boolean armUp = xBoxController2.getRawButton(4); //botao 4 = Y
-boolean armDown = xBoxController2.getRawButton(1); // botao 1 = A
+int direcao = 0;
+
+boolean armUpDown = xBoxController2.getRawButton(4); //botao 4 = Y
+//boolean armDown = xBoxController2.getRawButton(1); // botao 1 = A
+if (armUpDown && direcao == 0) { direcao = 1; } // se o botao for pressionado e o braço estiver abaixado, sobe o braço
+else if (armUpDown && direcao == 1) { direcao = 0; } // se o botao for pressionado e o braço estiver alto, abaixa o braço
 
 //definicao dos botoes do giro do braço
 boolean directionFront = xBoxController2.getRawButton(2); //botao 2 = B
 boolean directionBack = xBoxController2.getRawButton(3); // botao 3 = X
 
+//definicao dos botoes do giro do braço
+boolean lancar = xBoxController2.getRawButton(6); //botao 6 = RB
+boolean lancarForte = xBoxController2.getRawButton(5); // botao  5= LB 
+
+//se o botao for pressionado, lanca ou solta as bolinhas
+if (lancar){
+  lancador.set(0.6);
+}
+if (lancarForte) {
+  lancador.set(1);
+}
 //se um botao estiver pressionado, o motor de escalada sobe ou desce
 if (climbUp) {
    escaladaCorda.set(1); //100% da potencia
  } else if (climbDown) {
   escaladaCorda.set(-1); //100% da potencia
   
- } else {
+ } //else {
 //  escaladaCorda.set(0);
  //}
 
+
 //se um botao estiver pressionado, o braço anda para cima ou para baixo
-if (armUp) {
-   braco.set(ControlMode.PercentOutput, 0.2);
- } else if (armDown) {
-   braco.set(ControlMode.PercentOutput, -0.2);
-  
- } else { 
-   braco.set(ControlMode.PercentOutput, 0);
- }
+if (direcao == 1) {
+  braco.set(ControlMode.PercentOutput, 0.2);
+  Timer.delay(2); // Wait for 2 seconds
+  braco.set(ControlMode.PercentOutput, 0.0); // Stop the motor after timeout
+ } else if (direcao == 0) {
+   braco.set(ControlMode.PercentOutput, -0.2); 
+   Timer.delay(2);
+   braco.set(ControlMode.PercentOutput, 0.0); // Stop the motor after timeout
+
+ } 
 
 //se um botao estiver pressionado, o giro do braço anda para frente ou para tras
-if (girobola) {
+if (directionFront) {
   giroBraco.set(ControlMode.PercentOutput, 0.7); // velocidade maior
 } else if (directionFront) {
-  giroBraco.set(ControlMode.PercentOutput, 0.35); // frente normal
-} else if (directionBack) {
-  giroBraco.set(ControlMode.PercentOutput, -0.3); // trás normal
+  giroBraco.set(ControlMode.PercentOutput, 0); // parado
+}
+if (directionBack) {
+  giroBraco.set(ControlMode.PercentOutput, -0.7); // trás normal
 } else {
   giroBraco.set(ControlMode.PercentOutput, 0); // parado
 }
-
+ 
  
  double speedLimit = 0.4; // 50% da velocidade máxima
  double turnLimit = 0.275;  // também pode limitar a curva
