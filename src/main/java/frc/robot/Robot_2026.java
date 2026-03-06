@@ -74,7 +74,7 @@ public class Robot_2026 extends TimedRobot {
     double time = Timer.getFPGATimestamp();
     double elapsed = time - startTime;
 
-    if (elapsed < 3) { //se o tempo for menor que 3 segundos, anda pra frente
+    if (elapsed < 1) { //se o tempo for menor que 1 segundo, anda pra frente
         frontLeft.set(-0.25); //motores
         backLeft.set(-0.25);
         frontRight.set(0.25); 
@@ -83,31 +83,51 @@ public class Robot_2026 extends TimedRobot {
         giroBraco.set(ControlMode.PercentOutput, 0.0);
     } 
 
-    else if (elapsed < 4) { //tempo entre 3 e 4 segundos, movimento para e braço vai levemente para trás para contrariar braco nao totalmente fixo
+    else if (elapsed < 6) { //tempo entre 1 e 6 segundos, lanca as bola
+      backLeft.set(0);
+      frontRight.set(0);
+      backRight.set(0);
+
+      lancador.set(ControlMode.PercentOutput, 0.6);
+      
+      }
+    else if (elapsed < 10) { //tempo entre 6 e 10 segundos, vai para tras erguendo o climber
+        frontLeft.set(0.25);
+        backLeft.set(0.25);
+        frontRight.set(-0.25);
+        backRight.set(-0.25);
+ 
+        lancador.set(ControlMode.PercentOutput, 0);
+        escaladaCorda.set(0.5);
+ 
+    } 
+    
+    else if (elapsed < 12) { //tempo entre 10 e 12 segundos, para tudo
       frontLeft.set(0);
       backLeft.set(0);
       frontRight.set(0);
       backRight.set(0);
 
-      braco.set(ControlMode.PercentOutput, -0.1);
-      
-      }
-    else if (elapsed < 5) { //tempo entre 4 e 5 segundos, movimento para e braco gira
-        frontLeft.set(0);
-        backLeft.set(0);
-        frontRight.set(0);
-        backRight.set(0);
- 
-        giroBraco.set(ControlMode.PercentOutput, 0.3); 
-    } 
-    else { //tempo maior que 4 segundos, para tudo
-        frontLeft.set(0);
-        backLeft.set(0);
-        frontRight.set(0);
-        backRight.set(0);
-
-        giroBraco.set(ControlMode.PercentOutput, 0.0);
+      escaladaCorda.set( 0); 
     }
+    else if (elapsed < 19) {//tempo entre 12 e 19
+      frontLeft.set(0);
+      backLeft.set(0);
+      frontRight.set(0);
+      backRight.set(0);
+
+      escaladaCorda.set(-1); 
+    }
+    else if (elapsed < 20) {
+      frontLeft.set(0);
+      backLeft.set(0);
+      frontRight.set(0);
+      backRight.set(0);
+
+      escaladaCorda.set(0); // para o motor de escalada
+    }
+
+
   }
 
   @Override
@@ -132,18 +152,18 @@ boolean climbDown = xBoxController1.getRawButton(5); // botao 5 = LB
 //definicao dos botoes do braço
 int direcao = 0;
 
-boolean armUpDown = xBoxController2.getRawButton(4); //botao 4 = Y
+boolean armUpDown = xBoxController2.getRawButton(5); //botao 5 = LB
 //boolean armDown = xBoxController2.getRawButton(1); // botao 1 = A
 if (armUpDown && direcao == 0) { direcao = 1; } // se o botao for pressionado e o braço estiver abaixado, sobe o braço
 else if (armUpDown && direcao == 1) { direcao = 0; } // se o botao for pressionado e o braço estiver alto, abaixa o braço
 
 //definicao dos botoes do giro do braço
-boolean directionFront = xBoxController2.getRawButton(2); //botao 2 = B
-boolean directionBack = xBoxController2.getRawButton(3); // botao 3 = X
+boolean directionFront = xBoxController2.getRawButton(1); //botao 1 = A
+boolean directionBack = xBoxController2.getRawButton(4); // botao 4 = Y
 
 //definicao dos botoes do giro do braço
-boolean lancar = xBoxController2.getRawButton(6); //botao 6 = RB
-boolean lancarForte = xBoxController2.getRawButton(5); // botao  5= LB 
+boolean lancar = xBoxController2.getRawButton(2); //botao 2 = B
+boolean lancarForte = xBoxController2.getRawButton(6); // botao  6 = RB 
 
 //se o botao for pressionado, lanca ou solta as bolinhas
 if (lancar){
@@ -153,9 +173,9 @@ if (lancarForte) {
   lancador.set(1);
 }
 //se um botao estiver pressionado, o motor de escalada sobe ou desce
-if (climbUp) {
-   escaladaCorda.set(1); //100% da potencia
- } else if (climbDown) {
+if (climbDown) {
+   escaladaCorda.set(0.5); //50% da potencia
+ } else if (climbUp) {
   escaladaCorda.set(-1); //100% da potencia
   
  } //else {
@@ -166,12 +186,17 @@ if (climbUp) {
 //se um botao estiver pressionado, o braço anda para cima ou para baixo
 if (direcao == 1) {
   braco.set(ControlMode.PercentOutput, 0.2);
+  braco2.set(ControlMode.PercentOutput, -0.2);
   Timer.delay(2); // Wait for 2 seconds
-  braco.set(ControlMode.PercentOutput, 0.0); // Stop the motor after timeout
+  braco.set(ControlMode.PercentOutput, 0.0);
+  braco2.set(ControlMode.PercentOutput, 0.0); // Stop the motor after timeout
+  // Stop the motor after timeout
  } else if (direcao == 0) {
-   braco.set(ControlMode.PercentOutput, -0.2); 
+   braco.set(ControlMode.PercentOutput, -0.2);
+   braco2.set(ControlMode.PercentOutput, 0.2); 
    Timer.delay(2);
    braco.set(ControlMode.PercentOutput, 0.0); // Stop the motor after timeout
+   braco2.set(ControlMode.PercentOutput, 0.0); // Stop the motor after timeout
 
  } 
 
